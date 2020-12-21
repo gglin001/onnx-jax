@@ -1,0 +1,34 @@
+def convert_onnx(attr_proto):
+    if attr_proto.HasField('f'):
+        return attr_proto.f
+    elif attr_proto.HasField('i'):
+        return attr_proto.i
+    elif attr_proto.HasField('s'):
+        return str(attr_proto.s, 'utf-8')
+    elif attr_proto.HasField('t'):
+        return attr_proto.t  # this is a proto!
+    elif attr_proto.HasField('g'):
+        return attr_proto.g
+    elif attr_proto.floats:
+        return list(attr_proto.floats)
+    elif attr_proto.ints:
+        return list(attr_proto.ints)
+    elif attr_proto.strings:
+        str_list = list(attr_proto.strings)
+        str_list = list(map(lambda x: str(x, 'utf-8'), str_list))
+        return str_list
+    elif attr_proto.HasField('sparse_tensor'):
+        return attr_proto.sparse_tensor
+    else:
+        raise ValueError("Unsupported ONNX attribute: {}".format(attr_proto))
+
+
+class OnnxNode(object):
+    def __init__(self, node):
+        self.name = str(node.name)
+        self.op_type = str(node.op_type)
+        self.domain = str(node.domain)
+        self.attrs = dict([(attr.name, convert_onnx(attr)) for attr in node.attribute])
+        self.inputs = list(node.input)
+        self.outputs = list(node.output)
+        self.node_proto = node
