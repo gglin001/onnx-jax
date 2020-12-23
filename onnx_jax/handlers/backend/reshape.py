@@ -1,5 +1,5 @@
 import jax.numpy as jnp
-import numpy as onp
+import numpy as np
 
 from onnx_jax.handlers.backend_handler import BackendHandler
 from onnx_jax.handlers.handler import onnx_op
@@ -20,9 +20,9 @@ class Reshape(BackendHandler):
         # ref https://github.com/onnx/onnx
         # replace zeros with corresponding dim size
         # we need to do this because np.reshape doesn't support 0
-        zeros_index = onp.where(shape == 0)[0]
+        zeros_index = np.where(shape == 0)[0]
         if zeros_index.size:
-            shape[zeros_index] = onp.array(x.shape)[zeros_index]
+            shape[zeros_index] = np.array(x.shape)[zeros_index]
         return [jnp.reshape(x, shape)]
 
     @classmethod

@@ -30,12 +30,12 @@ class Pad(BackendHandler):
 
 def pad_impl(data, pads, constant_value=0.0, mode='constant', **kwargs):
     input_rank = data.ndim
-    if input_rank * 2 != pads.size:
+    if input_rank * 2 != jnp.size(pads):
         raise Exception('The number of elements in raw_pads should be 2 * data_rank')
 
     # re-order to np.pad accepted order ((x1_begin, x1_end), (x2_begin, x2_end), ...)
     pad_width = ()
-    for i in range(int(pads.size / 2)):
+    for i in range(int(jnp.size(pads) / 2)):
         pad_width += ((pads[i], pads[i + input_rank])),
 
     if mode == 'constant':
