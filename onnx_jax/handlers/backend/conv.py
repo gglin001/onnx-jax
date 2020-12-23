@@ -1,4 +1,5 @@
 from jax import lax
+import jax.numpy as jnp
 
 from onnx_jax.handlers.backend_handler import BackendHandler
 from onnx_jax.handlers.handler import onnx_op
@@ -8,7 +9,7 @@ from onnx_jax.handlers.handler import onnx_op
 class Conv(BackendHandler):
 
     @classmethod
-    def _common(cls, node, inputs, transpose=False, **kwargs):
+    def _common(cls, node, inputs, **kwargs):
         return onnx_conv(*inputs, **node.attrs)
 
     @classmethod
@@ -20,20 +21,49 @@ class Conv(BackendHandler):
         return cls._common(node, **kwargs)
 
 
-# TODO transpose depthwise group
-def onnx_conv(x, w, b=0, group=1, kernel_shape=None, pads=None, strides=None,
-              dilations=None, auto_pad=None):
-    """Numpy-backed implementation of ONNX Conv op."""
-    assert group == 1
+def pad_helper(data, pads, mode, constant_values=0.0):
+    input_rank = data.ndim
+    pad_pairs = len(pads) // 2
+
+    pad_width = []
+    for _ in range(input_rank - pad_pairs):
+        pad_width.append((0, 0))
+    for idx in range(pad_pairs):
+        pad_width.append((pads[idx], pads[idx + pad_pairs]))
+
+    if mode == 'constant':
+        return jnp.pad(data, pad_width=pad_width, mode=mode, constant_values=constant_values)
+
+    return jnp.pad(data, pad_width=pad_width, mode=mode)
+
+
+def onnx_conv(x, w, b=0, group=1, kernel_shape=None, pads=None, strides=None, dilations=None, auto_pad=None):
     kernel_shape = kernel_shape or w.shape
-    strides = strides or [1] * (w.ndim - 2)
-    if auto_pad:
-        auto_pad = 'SAME' if auto_pad.startswith('SAME') else 'VALID'
-        pads = lax.padtype_to_pads(x.shape[2:], w.shape[2:], strides, auto_pad)
+    spatial_size = w.ndim - 2
+    strides = strides or [1] * spatial_size
+
+    # TODO some pad does not need a PadOp
+    # Check auto_pad nonexistent or NOTSET first
+    if not auto_pad or auto_pad == "NOTSET":
+        if pads != [0, 0] * spatial_size:
+            x = pad_helper(x, pads, 'constant', 0.)
+        pad_mode = "VALID"
+
+    # Then we use auto_pad to setup pad_mode
+    elif auto_pad == "SAME_UPPER":
+        pad_mode = "SAME"
+    elif auto_pad == "VALID":
+        pad_mode = "VALID"
+    elif auto_pad == "SAME_LOWER":
+        pad_mode = 'PAD_TF_INCOMPATIBLE'
     else:
-        pads = pads or [0] * (w.ndim - 2)
-        if len(pads) == 4:
-            pads = [(pads[0], pads[1]), (pads[2], pads[3])]
+        raise ValueError("Invalid auto_pad attribute: {}".format(
+            auto_pad))
+
+    # Currently auto_pad = SAME_LOWER is not supported
+    if pad_mode == 'PAD_TF_INCOMPATIBLE':
+        raise Exception("Conv with auto_pad `SAME_LOWER` Tensorflow")
     lhs_dilation = [1] * (w.ndim - 2)
     rhs_dilation = dilations or [1] * (w.ndim - 2)
-    return [lax.conv_with_general_padding(x, w, strides, pads, lhs_dilation, rhs_dilation) + b]
+
+    return [lax.conv_general_dilated(x, w, strides, pad_mode, lhs_dilation, rhs_dilation, None, group, 1) + b]
