@@ -9,7 +9,7 @@ class Round(BackendHandler):
 
     @classmethod
     def _common(cls, node, inputs, **kwargs):
-        return [jnp.round(inputs[0], inputs[1])]
+        return [jnp.round(inputs[0])]
 
     @classmethod
     def version_11(cls, node, **kwargs):
