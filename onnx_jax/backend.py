@@ -1,6 +1,6 @@
 from onnx import defs
 from onnx import numpy_helper
-from onnx.backend.base import Backend
+from onnx.backend.base import Backend, BackendRep
 from onnx.backend.test.runner import BackendIsNotSupposedToImplementIt
 from onnx.helper import make_opsetid
 
@@ -8,23 +8,40 @@ from onnx_jax.common.handler_helper import get_all_backend_handlers
 from onnx_jax.pb_wrapper import OnnxNode
 
 
+class JaxRep(BackendRep):
+
+    def __init__(self, model=None):
+        super(JaxRep, self).__init__()
+
+        self.model = model
+
+    def run(self, inputs, **kwargs):
+        return JaxBackend.run_model(self.model, inputs)
+
+
 class JaxBackend(Backend):
 
     @classmethod
-    def prepare(cls, model, **kwargs):
-        super(JaxBackend, cls).prepare(model, **kwargs)
+    def supports_device(cls, device):
+        if device == 'CPU':
+            return True
 
-        pass
+        return False
 
     @classmethod
-    def run_node(cls, node, inputs, **kwargs):
+    def prepare(cls, model, device='CPU', **kwargs):
+
+        return JaxRep(model)
+
+    @classmethod
+    def run_node(cls, node, inputs, device='CPU', **kwargs):
         super(JaxBackend, cls).run_node(node, inputs)
 
         outputs = cls._run_node_imp(OnnxNode(node), inputs, **kwargs)
         return outputs
 
     @classmethod
-    def run_model(cls, model, input_dict, **kwargs):
+    def run_model(cls, model, inputs, device='CPU', **kwargs):
         def _asarray(proto):
             return numpy_helper.to_array(proto).reshape(tuple(proto.dims))
 
@@ -34,8 +51,14 @@ class JaxBackend(Backend):
         else:
             opset = model.opset_import
 
-        tensor_dict = dict({k: v for k, v in input_dict.items()},
-                           **{n.name: _asarray(n) for n in graph.initializer})
+        if isinstance(inputs, dict):
+            tensor_dict = dict({k: v for k, v in inputs.items()},
+                               **{n.name: _asarray(n) for n in graph.initializer})
+        else:
+            graph_inputs = [x.name for x in graph.input]
+            tensor_dict = dict({k: v for k, v in zip(graph_inputs, inputs)},
+                               **{n.name: _asarray(n) for n in graph.initializer})
+
         handlers = cls._get_handlers(opset)
         for node in graph.node:
             node_inputs = [tensor_dict[x] for x in node.input]
@@ -69,3 +92,5 @@ prepare = JaxBackend.prepare
 run_node = JaxBackend.run_node
 
 run_model = JaxBackend.run_model
+
+supports_device = JaxBackend.supports_device

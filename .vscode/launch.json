@@ -12,6 +12,7 @@
             // "console": "integratedTerminal",
             "console": "internalConsole",
             "envFile": "${workspaceFolder}/.env",
+            "justMyCode": false,
             // "env": {
             //     "": ""
             // }
