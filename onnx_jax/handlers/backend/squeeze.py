@@ -25,4 +25,6 @@ class Squeeze(BackendHandler):
 
 
 def squeeze_impl(data, axes=None, **kwargs):
+    if axes is not None:
+        axes = tuple(axes)
     return [jnp.squeeze(data, axes)]

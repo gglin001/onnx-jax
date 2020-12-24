@@ -13,11 +13,11 @@ class Clip(BackendHandler):
 
     @classmethod
     def version_1(cls, node, **kwargs):
-        return cls._common(node, **kwargs)
+        return [jnp.clip(kwargs['inputs'][0], node.attrs['min'], node.attrs['max'])]
 
     @classmethod
     def version_6(cls, node, **kwargs):
-        return cls._common(node, **kwargs)
+        return [jnp.clip(kwargs['inputs'][0], node.attrs['min'], node.attrs['max'])]
 
     @classmethod
     def version_11(cls, node, **kwargs):
