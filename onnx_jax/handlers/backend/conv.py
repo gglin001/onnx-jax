@@ -55,14 +55,10 @@ def onnx_conv(x, w, b=None, group=1, kernel_shape=None, pads=None, strides=None,
     elif auto_pad == "VALID":
         pad_mode = "VALID"
     elif auto_pad == "SAME_LOWER":
-        pad_mode = 'PAD_TF_INCOMPATIBLE'
+        raise NotImplemented("Conv with auto_pad `SAME_LOWER`")
     else:
-        raise ValueError("Invalid auto_pad attribute: {}".format(
-            auto_pad))
+        raise ValueError("Invalid auto_pad attribute: {}".format(auto_pad))
 
-    # Currently auto_pad = SAME_LOWER is not supported
-    if pad_mode == 'PAD_TF_INCOMPATIBLE':
-        raise Exception("Conv with auto_pad `SAME_LOWER` Tensorflow")
     lhs_dilation = [1] * (w.ndim - 2)
     rhs_dilation = dilations or [1] * (w.ndim - 2)
 

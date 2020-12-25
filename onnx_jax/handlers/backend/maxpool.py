@@ -61,7 +61,7 @@ def onnx_maxpool(x, kernel_shape, pads=None, strides=None, dilations=None,
     elif auto_pad == "VALID":
         pads = "VALID"
     elif auto_pad == "SAME_LOWER":
-        raise Exception("MaxPool with auto_pad `SAME_LOWER` Tensorflow")
+        raise NotImplemented("MaxPool with auto_pad `SAME_LOWER`")
     else:
         raise ValueError(f"Invalid auto_pad attribute: {auto_pad}")
 
