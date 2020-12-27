@@ -9,7 +9,8 @@ class Shape(BackendHandler):
 
     @classmethod
     def _common(cls, node, inputs, **kwargs):
-        return [jnp.asarray(inputs[0].shape).astype(jnp.int64)]
+        # return type: int32, not int64
+        return [jnp.asarray(inputs[0].shape).astype(jnp.int32)]
 
     @classmethod
     def version_1(cls, node, **kwargs):
