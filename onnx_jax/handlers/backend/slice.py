@@ -13,7 +13,7 @@ class Slice(BackendHandler):
 
     @classmethod
     def version_1(cls, node, **kwargs):
-        raise NotImplemented('SLice version 1')
+        return cls._common(node, **kwargs)
 
     @classmethod
     def version_10(cls, node, **kwargs):
@@ -57,7 +57,7 @@ def onnx_slice_v10(data, starts, ends, axes=None, steps=None, **kwargs):
                     ends_new.append(end_helper(end, data_shape[dim]))
                     axes_new.append(axe)
                     break
-            if axes_new[-1] != dim:
+            if not axes_new or axes_new[-1] != dim:
                 starts_new.append(0)
                 ends_new.append(data_shape[dim])
                 axes_new.append(dim)
