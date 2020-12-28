@@ -9,7 +9,7 @@ class Mul(BackendHandler):
 
     @classmethod
     def _common(cls, node, inputs, **kwargs):
-        return [jnp.multiply(inputs[0], inputs[1])]
+        return onnx_mul(*inputs, **node.attrs)
 
     @classmethod
     def version_1(cls, node, **kwargs):
@@ -26,3 +26,12 @@ class Mul(BackendHandler):
     @classmethod
     def version_13(cls, node, **kwargs):
         return cls._common(node, **kwargs)
+
+
+def onnx_mul(a, b, **kwargs):
+    if len(a.shape) != len(b.shape):
+        b_shape = [1] * len(a.shape)
+        b_shape[1] = -1
+        b = jnp.reshape(b, b_shape)
+
+    return [jnp.multiply(a, b)]

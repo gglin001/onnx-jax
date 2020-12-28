@@ -9,7 +9,7 @@ class Div(BackendHandler):
 
     @classmethod
     def _common(cls, node, inputs, **kwargs):
-        return [jnp.divide(inputs[0], inputs[1])]
+        return onnx_div(*inputs, **node.attrs)
 
     @classmethod
     def version_1(cls, node, **kwargs):
@@ -26,3 +26,7 @@ class Div(BackendHandler):
     @classmethod
     def version_13(cls, node, **kwargs):
         return cls._common(node, **kwargs)
+
+
+def onnx_div(a, b, **kwargs):
+    return [jnp.divide(a, b)]

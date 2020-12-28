@@ -9,7 +9,7 @@ class Sub(BackendHandler):
 
     @classmethod
     def _common(cls, node, inputs, **kwargs):
-        return [jnp.subtract(inputs[0], inputs[1])]
+        return onnx_sub(*inputs, **node.attrs)
 
     @classmethod
     def version_1(cls, node, **kwargs):
@@ -26,3 +26,7 @@ class Sub(BackendHandler):
     @classmethod
     def version_13(cls, node, **kwargs):
         return cls._common(node, **kwargs)
+
+
+def onnx_sub(a, b, **kwargs):
+    return[jnp.subtract(a, b)]

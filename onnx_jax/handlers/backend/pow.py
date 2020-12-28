@@ -9,7 +9,7 @@ class Pow(BackendHandler):
 
     @classmethod
     def _common(cls, node, inputs, **kwargs):
-        return [jnp.power(inputs[0], inputs[1])]
+        return onnx_pow(*inputs, **node.attrs)
 
     @classmethod
     def version_1(cls, node, **kwargs):
@@ -26,3 +26,7 @@ class Pow(BackendHandler):
     @classmethod
     def version_13(cls, node, **kwargs):
         return cls._common(node, **kwargs)
+
+
+def onnx_pow(a, b, **kwargs):
+    return[jnp.power(a, b)]

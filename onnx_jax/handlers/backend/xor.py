@@ -9,7 +9,7 @@ class Xor(BackendHandler):
 
     @classmethod
     def _common(cls, node, inputs, **kwargs):
-        return [jnp.logical_xor(inputs[0], inputs[1])]
+        return onnx_xor(*inputs, **node.attrs)
 
     @classmethod
     def version_1(cls, node, **kwargs):
@@ -18,3 +18,7 @@ class Xor(BackendHandler):
     @classmethod
     def version_7(cls, node, **kwargs):
         return [cls.make_tensor_from_onnx_node(node, **kwargs)]
+
+
+def onnx_xor(a, b, **kwargs):
+    return[jnp.logical_xor(a, b)]

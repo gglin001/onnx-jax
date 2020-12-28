@@ -35,4 +35,9 @@ def onnx_add(a, b, axis=None, broadcast=False):
         b_shape.append(a.shape[axis])
         b_shape.extend([1] * len(a.shape[axis + 1:]))
         b = jnp.reshape(b, b_shape)
-    return [a + b]
+    elif len(a.shape) != len(b.shape):
+        b_shape = [1] * len(a.shape)
+        b_shape[1] = -1
+        b = jnp.reshape(b, b_shape)
+
+    return [jnp.add(a, b)]
