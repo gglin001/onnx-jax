@@ -43,13 +43,10 @@ def onnx_conv(x, w, b=None, group=1, kernel_shape=None, pads=None, strides=None,
     strides = strides or [1] * spatial_size
 
     # TODO some pad does not need a PadOp
-    # Check auto_pad nonexistent or NOTSET first
     if not auto_pad or auto_pad == "NOTSET":
-        if pads != [0, 0] * spatial_size:
+        if pads is not None and pads != [0, 0] * spatial_size:
             x = pad_helper(x, pads, 'constant', 0.)
         pad_mode = "VALID"
-
-    # Then we use auto_pad to setup pad_mode
     elif auto_pad == "SAME_UPPER":
         pad_mode = "SAME"
     elif auto_pad == "VALID":
