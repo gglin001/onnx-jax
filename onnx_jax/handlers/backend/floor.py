@@ -9,7 +9,7 @@ class Floor(BackendHandler):
 
     @classmethod
     def _common(cls, node, inputs, **kwargs):
-        y = jnp.floor(inputs[0])
+        return [jnp.floor(inputs[0])]
 
     @classmethod
     def version_1(cls, node, **kwargs):
