@@ -5,7 +5,7 @@ from onnx.backend.test.runner import BackendIsNotSupposedToImplementIt
 from onnx.helper import make_opsetid
 
 from onnx_jax.common.handler_helper import get_all_backend_handlers
-from onnx_jax.pb_wrapper import OnnxNode
+from onnx_jax.pb_wrapper import OnnxNode, build_ref_dict
 
 
 class JaxRep(BackendRep):
@@ -45,6 +45,7 @@ class JaxBackend(Backend):
         def _asarray(proto):
             return numpy_helper.to_array(proto).reshape(tuple(proto.dims))
 
+        tensor_ref_dict = build_ref_dict(model)
         graph = model.graph
         if model.ir_version < 3:
             opset = [make_opsetid(defs.ONNX_DOMAIN, 1)]
@@ -59,6 +60,7 @@ class JaxBackend(Backend):
             tensor_dict = dict({k: v for k, v in zip(graph_inputs, inputs)},
                                **{n.name: _asarray(n) for n in graph.initializer})
 
+        ref_dict = {}
         handlers = cls._get_handlers(opset)
         for node in graph.node:
             node_inputs = [tensor_dict[x] for x in node.input]
@@ -67,6 +69,23 @@ class JaxBackend(Backend):
             outputs = cls._run_node_imp(OnnxNode(node), node_inputs, opset, handlers)
             for name, output in zip(node.output, outputs):
                 tensor_dict[name] = output
+
+            node_input_shapes = [tensor_dict[x].shape for x in node.input]
+            node_output_shapes = [tensor_dict[x].shape for x in node.output]
+            print(f"\t{node_input_shapes} -> {node_output_shapes}")
+
+            for input_ in node.input:
+                if input_ in ref_dict:
+                    ref_dict[input_] += 1
+                else:
+                    ref_dict[input_] = 1
+            remove_keys = []
+            for k, v in ref_dict.items():
+                if tensor_ref_dict[k] == v:
+                    remove_keys.append(k)
+            for rm_k in remove_keys:
+                del ref_dict[rm_k]
+                del tensor_dict[rm_k]
 
         return [tensor_dict[n.name] for n in graph.output]
 

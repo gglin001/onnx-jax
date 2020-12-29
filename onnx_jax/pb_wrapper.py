@@ -32,3 +32,16 @@ class OnnxNode(object):
         self.inputs = list(node.input)
         self.outputs = list(node.output)
         self.node_proto = node
+
+
+def build_ref_dict(model):
+    ref_dict = {}
+    for node in model.graph.node:
+        inputs = node.input
+        for input_ in inputs:
+            if input_ in ref_dict:
+                ref_dict[input_] += 1
+            else:
+                ref_dict[input_] = 1
+
+    return ref_dict
