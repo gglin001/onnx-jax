@@ -9,7 +9,15 @@ class Mean(BackendHandler):
 
     @classmethod
     def _common(cls, node, inputs, **kwargs):
-        return [jnp.mean(inputs)]
+        if len(inputs) == 1:
+            return [jnp.mean(inputs[0])]
+        if len(inputs) == 2:
+            return [jnp.add(*inputs) / 2]
+        else:
+            y = jnp.add(inputs[0], inputs[1])
+            for idx in range(2, len(inputs)):
+                y = jnp.add(y, inputs[idx])
+            return [jnp.divide(y, len(inputs))]
 
     @classmethod
     def version_1(cls, node, **kwargs):

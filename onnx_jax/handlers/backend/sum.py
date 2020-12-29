@@ -9,7 +9,13 @@ class Sum(BackendHandler):
 
     @classmethod
     def _common(cls, node, inputs, **kwargs):
-        return [jnp.add(inputs)]
+        if len(inputs) == 2:
+            return [jnp.add(*inputs)]
+        else:
+            y = jnp.add(inputs[0], inputs[1])
+            for idx in range(2, len(inputs)):
+                y = jnp.add(y, inputs[idx])
+            return [y]
 
     @classmethod
     def version_1(cls, node, **kwargs):
