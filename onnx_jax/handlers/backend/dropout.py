@@ -6,7 +6,6 @@ from onnx_jax.handlers.handler import onnx_op
 
 @onnx_op("Dropout")
 class Dropout(BackendHandler):
-
     @classmethod
     def _common(cls, node, inputs, **kwargs):
         return onnx_dropout(node, *inputs, **node.attrs)

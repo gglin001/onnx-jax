@@ -6,7 +6,6 @@ from onnx_jax.handlers.handler import onnx_op
 
 @onnx_op("LeakyRelu")
 class Identity(BackendHandler):
-
     @classmethod
     def _common(cls, node, inputs, **kwargs):
         return [leaky_relu(inputs[0], node.attrs['alpha'])]

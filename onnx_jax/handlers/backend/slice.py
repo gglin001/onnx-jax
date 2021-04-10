@@ -4,7 +4,6 @@ from onnx_jax.handlers.handler import onnx_op
 
 @onnx_op("Slice")
 class Slice(BackendHandler):
-
     @classmethod
     def _common(cls, node, inputs, **kwargs):
         return onnx_slice_v10(*inputs, **node.attrs)
@@ -26,13 +25,16 @@ class Slice(BackendHandler):
         return cls.version_10(node, **kwargs)
 
 
-def axe_helper(ndim, x): return ndim + x if x < 0 else x
+def axe_helper(ndim, x):
+    return ndim + x if x < 0 else x
 
 
-def start_helper(st, shape): return shape + st if st < 0 else min(st, shape)
+def start_helper(st, shape):
+    return shape + st if st < 0 else min(st, shape)
 
 
-def end_helper(end, shape): return shape + end if end < 0 else min(end, shape)
+def end_helper(end, shape):
+    return shape + end if end < 0 else min(end, shape)
 
 
 def onnx_slice_v10(data, starts, ends, axes=None, steps=None, **kwargs):
@@ -72,5 +74,8 @@ def onnx_slice_v10(data, starts, ends, axes=None, steps=None, **kwargs):
                 axes_new.append(dim)
                 steps_new.append(None)
 
-    slices = [slice(_st, _end, _step) for _st, _end, _step in zip(starts_new, ends_new, steps_new)]
+    slices = [
+        slice(_st, _end, _step)
+        for _st, _end, _step in zip(starts_new, ends_new, steps_new)
+    ]
     return [data.__getitem__(tuple(slices))]

@@ -6,7 +6,6 @@ from onnx_jax.handlers.handler import onnx_op
 
 @onnx_op("LogSoftmax")
 class LogSoftmax(BackendHandler):
-
     @classmethod
     def _common(cls, node, inputs, **kwargs):
         return [log_softmax(*inputs, **node.attrs)]

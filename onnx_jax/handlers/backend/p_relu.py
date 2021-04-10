@@ -6,10 +6,12 @@ from onnx_jax.handlers.handler import onnx_op
 
 @onnx_op("PRelu")
 class PRelu(BackendHandler):
-
     @classmethod
     def _common(cls, node, inputs, **kwargs):
-        return [jnp.clip(inputs[0], 0, jnp.inf) + jnp.clip(inputs[0], - jnp.inf, 0) * inputs[1]]
+        return [
+            jnp.clip(inputs[0], 0, jnp.inf)
+            + jnp.clip(inputs[0], -jnp.inf, 0) * inputs[1]
+        ]
 
     @classmethod
     def version_1(cls, node, **kwargs):

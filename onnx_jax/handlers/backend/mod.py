@@ -6,7 +6,6 @@ from onnx_jax.handlers.handler import onnx_op
 
 @onnx_op("Mod")
 class Mod(BackendHandler):
-
     @classmethod
     def _common(cls, node, inputs, **kwargs):
         return onnx_mmod(*inputs, **node.attrs)

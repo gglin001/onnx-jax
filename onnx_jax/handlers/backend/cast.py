@@ -21,13 +21,12 @@ TENSOR_TYPE_TO_JNP_TYPE = {
     int(TensorProto.COMPLEX128): np.dtype('complex128'),
     int(TensorProto.UINT32): np.dtype('uint32'),
     int(TensorProto.UINT64): np.dtype('uint64'),
-    int(TensorProto.STRING): np.dtype(np.object)
+    int(TensorProto.STRING): np.dtype(np.object),
 }
 
 
 @onnx_op("Cast")
 class Cast(BackendHandler):
-
     @classmethod
     def _common(cls, node, inputs, **kwargs):
         return [inputs[0].astype(TENSOR_TYPE_TO_JNP_TYPE[node.attrs['to']])]

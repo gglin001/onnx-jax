@@ -6,7 +6,6 @@ from onnx_jax.handlers.handler import onnx_op
 
 @onnx_op("Size")
 class Size(BackendHandler):
-
     @classmethod
     def _common(cls, node, inputs, **kwargs):
         return [jnp.array(jnp.size(inputs[0])).astype(jnp.int64)]

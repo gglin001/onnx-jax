@@ -6,7 +6,6 @@ from onnx_jax.handlers.handler import onnx_op
 
 @onnx_op("Exp")
 class Exp(BackendHandler):
-
     @classmethod
     def _common(cls, node, inputs, **kwargs):
         return [jnp.exp(inputs[0])]

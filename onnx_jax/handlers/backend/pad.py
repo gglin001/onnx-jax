@@ -6,7 +6,6 @@ from onnx_jax.handlers.handler import onnx_op
 
 @onnx_op("Pad")
 class Pad(BackendHandler):
-
     @classmethod
     def _common(cls, node, inputs, **kwargs):
         return pad_impl(*inputs, **node.attrs)
@@ -36,7 +35,7 @@ def pad_impl(data, pads, constant_value=0.0, mode='constant', **kwargs):
     # re-order to np.pad accepted order ((x1_begin, x1_end), (x2_begin, x2_end), ...)
     pad_width = ()
     for i in range(int(jnp.size(pads) / 2)):
-        pad_width += ((pads[i], pads[i + input_rank])),
+        pad_width += (((pads[i], pads[i + input_rank])),)
 
     if mode == 'constant':
         return [jnp.pad(data, pad_width, mode, constant_values=constant_value)]

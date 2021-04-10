@@ -6,7 +6,6 @@ from onnx_jax.handlers.handler import onnx_op
 
 @onnx_op("Relu")
 class Relu(BackendHandler):
-
     @classmethod
     def _common(cls, node, inputs, **kwargs):
         return [relu(inputs[0])]

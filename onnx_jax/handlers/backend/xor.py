@@ -6,7 +6,6 @@ from onnx_jax.handlers.handler import onnx_op
 
 @onnx_op("Xor")
 class Xor(BackendHandler):
-
     @classmethod
     def _common(cls, node, inputs, **kwargs):
         return onnx_xor(*inputs, **node.attrs)
@@ -21,4 +20,4 @@ class Xor(BackendHandler):
 
 
 def onnx_xor(a, b, **kwargs):
-    return[jnp.logical_xor(a, b)]
+    return [jnp.logical_xor(a, b)]

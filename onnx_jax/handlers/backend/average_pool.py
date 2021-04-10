@@ -8,7 +8,6 @@ from onnx_jax.handlers.handler import onnx_op
 
 @onnx_op("AveragePool")
 class AveragePool(BackendHandler):
-
     @classmethod
     def _common(cls, node, inputs, **kwargs):
         return onnx_avgpool(*inputs, **node.attrs)
@@ -41,14 +40,23 @@ def pad_helper(input_rank, pads=None):
     return pad_width
 
 
-def onnx_avgpool(x, kernel_shape, pads=None, strides=None, auto_pad='NOTSET',
-                 ceil_mode=0, count_include_pad=0):
+def onnx_avgpool(
+    x,
+    kernel_shape,
+    pads=None,
+    strides=None,
+    auto_pad='NOTSET',
+    ceil_mode=0,
+    count_include_pad=0,
+):
 
     if ceil_mode != 0:
         raise NotImplemented('ceil_mode != 0')
 
     dims = (1,) * (x.ndim - len(kernel_shape)) + tuple(kernel_shape)
-    strides = ((1,) * (x.ndim - len(strides)) + tuple(strides)) if strides else (1,) * x.ndim
+    strides = (
+        ((1,) * (x.ndim - len(strides)) + tuple(strides)) if strides else (1,) * x.ndim
+    )
 
     if auto_pad == "NOTSET":
         pads = pad_helper(x.ndim, pads) if pads else 'VALID'
@@ -63,8 +71,11 @@ def onnx_avgpool(x, kernel_shape, pads=None, strides=None, auto_pad='NOTSET',
 
     if count_include_pad == 0:
         one = jnp.ones_like(x, dtype=x.dtype)
-        window_sizes = lax.reduce_window(one, 0., lax.add, dims, strides, pads)
+        window_sizes = lax.reduce_window(one, 0.0, lax.add, dims, strides, pads)
     else:
         window_sizes = np.prod(kernel_shape)
 
-    return [lax.reduce_window(x, 0., lax.add, dims, strides, pads, None, None) / window_sizes]
+    return [
+        lax.reduce_window(x, 0.0, lax.add, dims, strides, pads, None, None)
+        / window_sizes
+    ]

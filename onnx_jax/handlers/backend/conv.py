@@ -7,7 +7,6 @@ from onnx_jax.handlers.handler import onnx_op
 
 @onnx_op("Conv")
 class Conv(BackendHandler):
-
     @classmethod
     def _common(cls, node, inputs, **kwargs):
         return onnx_conv(*inputs, **node.attrs)
@@ -32,12 +31,24 @@ def pad_helper(data, pads, mode, constant_values=0.0):
         pad_width.append((pads[idx], pads[idx + pad_pairs]))
 
     if mode == 'constant':
-        return jnp.pad(data, pad_width=pad_width, mode=mode, constant_values=constant_values)
+        return jnp.pad(
+            data, pad_width=pad_width, mode=mode, constant_values=constant_values
+        )
 
     return jnp.pad(data, pad_width=pad_width, mode=mode)
 
 
-def onnx_conv(x, w, b=None, group=1, kernel_shape=None, pads=None, strides=None, dilations=None, auto_pad=None):
+def onnx_conv(
+    x,
+    w,
+    b=None,
+    group=1,
+    kernel_shape=None,
+    pads=None,
+    strides=None,
+    dilations=None,
+    auto_pad=None,
+):
     kernel_shape = kernel_shape or w.shape
     spatial_size = w.ndim - 2
     strides = strides or [1] * spatial_size
@@ -45,7 +56,7 @@ def onnx_conv(x, w, b=None, group=1, kernel_shape=None, pads=None, strides=None,
     # TODO some pad does not need a PadOp
     if not auto_pad or auto_pad == "NOTSET":
         if pads is not None and pads != [0, 0] * spatial_size:
-            x = pad_helper(x, pads, 'constant', 0.)
+            x = pad_helper(x, pads, 'constant', 0.0)
         pad_mode = "VALID"
     elif auto_pad == "SAME_UPPER":
         pad_mode = "SAME"
@@ -64,4 +75,9 @@ def onnx_conv(x, w, b=None, group=1, kernel_shape=None, pads=None, strides=None,
     else:
         b = 0
 
-    return [lax.conv_general_dilated(x, w, strides, pad_mode, lhs_dilation, rhs_dilation, None, group, 1) + b]
+    return [
+        lax.conv_general_dilated(
+            x, w, strides, pad_mode, lhs_dilation, rhs_dilation, None, group, 1
+        )
+        + b
+    ]

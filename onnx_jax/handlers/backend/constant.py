@@ -8,7 +8,6 @@ from onnx_jax.handlers.handler import onnx_op
 
 @onnx_op("Constant")
 class Constant(BackendHandler):
-
     @classmethod
     def _common(cls, node, **kwargs):
         attr_value = node.attrs["value"]

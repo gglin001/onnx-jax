@@ -6,7 +6,6 @@ from onnx_jax.handlers.handler import onnx_op
 
 @onnx_op("Sub")
 class Sub(BackendHandler):
-
     @classmethod
     def _common(cls, node, inputs, **kwargs):
         return onnx_sub(*inputs, **node.attrs)
@@ -29,4 +28,4 @@ class Sub(BackendHandler):
 
 
 def onnx_sub(a, b, **kwargs):
-    return[jnp.subtract(a, b)]
+    return [jnp.subtract(a, b)]

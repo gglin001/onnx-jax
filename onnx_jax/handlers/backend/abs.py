@@ -6,7 +6,6 @@ from onnx_jax.handlers.handler import onnx_op
 
 @onnx_op("Abs")
 class Abs(BackendHandler):
-
     @classmethod
     def _common(cls, node, inputs, **kwargs):
         return [jnp.abs(inputs[0])]

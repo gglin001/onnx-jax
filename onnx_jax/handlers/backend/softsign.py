@@ -6,7 +6,6 @@ from onnx_jax.handlers.handler import onnx_op
 
 @onnx_op("Softsign")
 class Softsign(BackendHandler):
-
     @classmethod
     def _common(cls, node, inputs, **kwargs):
         return soft_sign(inputs[0])

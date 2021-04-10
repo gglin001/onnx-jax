@@ -6,7 +6,6 @@ from onnx_jax.handlers.handler import onnx_op
 
 @onnx_op("Asin")
 class Acos(BackendHandler):
-
     @classmethod
     def _common(cls, node, inputs, **kwargs):
         return [jnp.arcsin(inputs[0])]

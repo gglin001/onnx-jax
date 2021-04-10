@@ -6,7 +6,6 @@ from onnx_jax.handlers.handler import onnx_op
 
 @onnx_op("Add")
 class Add(BackendHandler):
-
     @classmethod
     def _common(cls, node, inputs, **kwargs):
         return onnx_add(inputs[0], inputs[1], **node.attrs)
@@ -33,7 +32,7 @@ def onnx_add(a, b, axis=None, broadcast=False):
         b_shape = []
         b_shape.extend(a.shape[:axis])
         b_shape.append(a.shape[axis])
-        b_shape.extend([1] * len(a.shape[axis + 1:]))
+        b_shape.extend([1] * len(a.shape[axis + 1 :]))
         b = jnp.reshape(b, b_shape)
     elif len(a.shape) != len(b.shape):
         b_shape = [1] * len(a.shape)

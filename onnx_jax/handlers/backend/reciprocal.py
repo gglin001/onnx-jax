@@ -6,7 +6,6 @@ from onnx_jax.handlers.handler import onnx_op
 
 @onnx_op("Reciprocal")
 class Reciprocal(BackendHandler):
-
     @classmethod
     def _common(cls, node, inputs, **kwargs):
         return [jnp.reciprocal(inputs[0])]

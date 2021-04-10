@@ -6,7 +6,6 @@ from onnx_jax.handlers.handler import onnx_op
 
 @onnx_op("Or")
 class Or(BackendHandler):
-
     @classmethod
     def _common(cls, node, inputs, **kwargs):
         return onnx_or(*inputs, **node.attrs)
@@ -21,4 +20,4 @@ class Or(BackendHandler):
 
 
 def onnx_or(a, b, **kwargs):
-    return[jnp.logical_or(a, b)]
+    return [jnp.logical_or(a, b)]

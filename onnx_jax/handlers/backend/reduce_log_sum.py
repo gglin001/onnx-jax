@@ -6,7 +6,6 @@ from onnx_jax.handlers.handler import onnx_op
 
 @onnx_op("ReduceLogSum")
 class ReduceLogSum(BackendHandler):
-
     @classmethod
     def _common(cls, node, inputs, **kwargs):
         return onnx_reduce_log_sum(*inputs, **node.attrs)

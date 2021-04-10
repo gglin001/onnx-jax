@@ -7,7 +7,6 @@ from onnx_jax.handlers.handler import onnx_op
 
 @onnx_op("Upsample")
 class Upsample(BackendHandler):
-
     @classmethod
     def _common(cls, node, inputs, **kwargs):
         return onnx_upsample_jax(*inputs, **node.attrs)

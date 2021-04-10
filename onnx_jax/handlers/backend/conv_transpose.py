@@ -7,7 +7,6 @@ from onnx_jax.handlers.handler import onnx_op
 
 @onnx_op("ConvTranspose")
 class ConvTranspose(BackendHandler):
-
     @classmethod
     def _common(cls, node, inputs, **kwargs):
         return onnx_conv_transpose(*inputs, **node.attrs)
@@ -32,13 +31,27 @@ def pad_helper(data, pads, mode='constant', constant_values=0.0):
         pad_width.append((pads[idx], pads[idx + pad_pairs]))
 
     if mode == 'constant':
-        return jnp.pad(data, pad_width=pad_width, mode=mode, constant_values=constant_values)
+        return jnp.pad(
+            data, pad_width=pad_width, mode=mode, constant_values=constant_values
+        )
 
     return jnp.pad(data, pad_width=pad_width, mode=mode)
 
 
-def onnx_conv_transpose(x, w, b=None, auto_pad='NOTSET', dilations=None, group=1, kernel_shape=None,
-                        output_padding=None, output_shape=None, pads=None, strides=None, **kwargs):
+def onnx_conv_transpose(
+    x,
+    w,
+    b=None,
+    auto_pad='NOTSET',
+    dilations=None,
+    group=1,
+    kernel_shape=None,
+    output_padding=None,
+    output_shape=None,
+    pads=None,
+    strides=None,
+    **kwargs
+):
 
     kernel_shape = kernel_shape or w.shape
     spatial_size = w.ndim - 2
@@ -72,23 +85,33 @@ def onnx_conv_transpose(x, w, b=None, auto_pad='NOTSET', dilations=None, group=1
     else:
         b = 0
 
-    res = lax.conv_transpose(lhs=x,
-                             rhs=w,
-                             strides=strides,
-                             padding=pad_mode,
-                             rhs_dilation=rhs_dilation,
-                             dimension_numbers=('NCHW', 'OIHW', 'NCHW'),
-                             transpose_kernel=True,
-                             precision=None)
+    res = lax.conv_transpose(
+        lhs=x,
+        rhs=w,
+        strides=strides,
+        padding=pad_mode,
+        rhs_dilation=rhs_dilation,
+        dimension_numbers=('NCHW', 'OIHW', 'NCHW'),
+        transpose_kernel=True,
+        precision=None,
+    )
 
     # change output_padding order
     # TODO
-    output_padding = [0, 0, 0, 0] if output_padding is None else [0, 0, output_padding[0], output_padding[1]]
+    output_padding = (
+        [0, 0, 0, 0]
+        if output_padding is None
+        else [0, 0, output_padding[0], output_padding[1]]
+    )
     if output_shape is not None:
         need_append_output_pad = True
         for spatial_idx in range(spatial_size):
-            total_pad = output_padding[spatial_idx] + output_padding[spatial_size + spatial_idx]
-            shape_diff = output_shape[spatial_idx] - res.shape[spatial_idx + 2] - total_pad
+            total_pad = (
+                output_padding[spatial_idx] + output_padding[spatial_size + spatial_idx]
+            )
+            shape_diff = (
+                output_shape[spatial_idx] - res.shape[spatial_idx + 2] - total_pad
+            )
             if shape_diff == 0:
                 need_append_output_pad = False
             else:
@@ -98,7 +121,9 @@ def onnx_conv_transpose(x, w, b=None, auto_pad='NOTSET', dilations=None, group=1
             for spatial_idx in range(spatial_size):
                 shape_diff = output_shape[spatial_idx] - res.shape[spatial_idx + 2]
                 if shape_diff < 0:
-                    raise Exception('output_sahpe can not samller than lax.conv_transpose output shape')
+                    raise Exception(
+                        'output_sahpe can not samller than lax.conv_transpose output shape'
+                    )
                 else:
                     output_padding[spatial_idx + spatial_size] += shape_diff
 

@@ -6,7 +6,6 @@ from onnx_jax.handlers.handler import onnx_op
 
 @onnx_op("Range")
 class Round(BackendHandler):
-
     @classmethod
     def _common(cls, node, inputs, **kwargs):
         return [jnp.arange(inputs[0], inputs[1], inputs[2], dtype=jnp.float32)]

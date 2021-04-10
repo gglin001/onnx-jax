@@ -6,7 +6,6 @@ from onnx_jax.handlers.handler import onnx_op
 
 @onnx_op("Gemm")
 class Gemm(BackendHandler):
-
     @classmethod
     def _common(cls, node, inputs, **kwargs):
         return gemm_reference_implementation(*inputs, **node.attrs)
@@ -32,7 +31,9 @@ class Gemm(BackendHandler):
         return cls._common(node, **kwargs)
 
 
-def gemm_reference_implementation(A, B, C=None, alpha=1., beta=1., transA=0, transB=0):
+def gemm_reference_implementation(
+    A, B, C=None, alpha=1.0, beta=1.0, transA=0, transB=0
+):
     A = A if transA == 0 else A.T
     B = B if transB == 0 else B.T
     C = C if C is not None else jnp.array(0)

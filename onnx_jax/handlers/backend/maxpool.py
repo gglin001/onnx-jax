@@ -7,7 +7,6 @@ from onnx_jax.handlers.handler import onnx_op
 
 @onnx_op("MaxPool")
 class MaxPool(BackendHandler):
-
     @classmethod
     def _common(cls, node, inputs, **kwargs):
         # TODO
@@ -47,12 +46,26 @@ def pad_helper(input_rank, pads=None):
     return pad_width
 
 
-def onnx_maxpool(x, kernel_shape, pads=None, strides=None, dilations=None,
-                 auto_pad='NOTSET', ceil_mode=0, storage_order=0):
+def onnx_maxpool(
+    x,
+    kernel_shape,
+    pads=None,
+    strides=None,
+    dilations=None,
+    auto_pad='NOTSET',
+    ceil_mode=0,
+    storage_order=0,
+):
 
     dims = (1,) * (x.ndim - len(kernel_shape)) + tuple(kernel_shape)
-    strides = ((1,) * (x.ndim - len(strides)) + tuple(strides)) if strides else (1,) * x.ndim
-    dilations = ((1,) * (x.ndim - len(dilations)) + tuple(dilations)) if dilations else (1,) * x.ndim
+    strides = (
+        ((1,) * (x.ndim - len(strides)) + tuple(strides)) if strides else (1,) * x.ndim
+    )
+    dilations = (
+        ((1,) * (x.ndim - len(dilations)) + tuple(dilations))
+        if dilations
+        else (1,) * x.ndim
+    )
 
     if auto_pad == "NOTSET":
         pads = pad_helper(x.ndim, pads) if pads else 'VALID'
@@ -65,4 +78,6 @@ def onnx_maxpool(x, kernel_shape, pads=None, strides=None, dilations=None,
     else:
         raise ValueError(f"Invalid auto_pad attribute: {auto_pad}")
 
-    return [lax.reduce_window(x, -jnp.inf, lax.max, dims, strides, pads, None, dilations)]
+    return [
+        lax.reduce_window(x, -jnp.inf, lax.max, dims, strides, pads, None, dilations)
+    ]

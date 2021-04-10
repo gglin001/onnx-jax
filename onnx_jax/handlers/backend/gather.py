@@ -7,7 +7,6 @@ from onnx_jax.handlers.handler import onnx_op
 
 @onnx_op("Gather")
 class Gather(BackendHandler):
-
     @classmethod
     def _common(cls, node, inputs, **kwargs):
         return onnx_gather(*inputs, **node.attrs)

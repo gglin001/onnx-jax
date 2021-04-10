@@ -6,7 +6,6 @@ from onnx_jax.handlers.handler import onnx_op
 
 @onnx_op("ReduceSumSquare")
 class ReduceSumSquare(BackendHandler):
-
     @classmethod
     def _common(cls, node, inputs, **kwargs):
         return onnx_reduce_sum_square(*inputs, **node.attrs)

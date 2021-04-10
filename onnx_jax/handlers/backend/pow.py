@@ -6,7 +6,6 @@ from onnx_jax.handlers.handler import onnx_op
 
 @onnx_op("Pow")
 class Pow(BackendHandler):
-
     @classmethod
     def _common(cls, node, inputs, **kwargs):
         return onnx_pow(*inputs, **node.attrs)
@@ -29,4 +28,4 @@ class Pow(BackendHandler):
 
 
 def onnx_pow(a, b, **kwargs):
-    return[jnp.power(a, b)]
+    return [jnp.power(a, b)]

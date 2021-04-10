@@ -6,7 +6,6 @@ from onnx_jax.handlers.handler import onnx_op
 
 @onnx_op("Max")
 class Max(BackendHandler):
-
     @classmethod
     def _common(cls, node, inputs, **kwargs):
         if len(inputs) > 2:

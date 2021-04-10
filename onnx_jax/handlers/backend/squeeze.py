@@ -6,7 +6,6 @@ from onnx_jax.handlers.handler import onnx_op
 
 @onnx_op("Squeeze")
 class Squeeze(BackendHandler):
-
     @classmethod
     def _common(cls, node, inputs, **kwargs):
         return squeeze_impl(*inputs, **node.attrs)

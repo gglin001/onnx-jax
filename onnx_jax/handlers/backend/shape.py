@@ -6,7 +6,6 @@ from onnx_jax.handlers.handler import onnx_op
 
 @onnx_op("Shape")
 class Shape(BackendHandler):
-
     @classmethod
     def _common(cls, node, inputs, **kwargs):
         # return type: int32, not int64

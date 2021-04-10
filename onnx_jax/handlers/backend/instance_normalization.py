@@ -6,7 +6,6 @@ from onnx_jax.handlers.handler import onnx_op
 
 @onnx_op("InstanceNormalization")
 class InstanceNormalization(BackendHandler):
-
     @classmethod
     def _common(cls, node, inputs, **kwargs):
         return _instancenorm_test_mode(*inputs, **node.attrs)
