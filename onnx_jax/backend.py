@@ -1,15 +1,13 @@
-from onnx import defs
-from onnx import numpy_helper
+from onnx import defs, numpy_helper
 from onnx.backend.base import Backend, BackendRep
 from onnx.backend.test.runner import BackendIsNotSupposedToImplementIt
 from onnx.helper import make_opsetid
 
-from onnx_jax.common.handler_helper import get_all_backend_handlers
+from onnx_jax.handler_helper import get_all_backend_handlers
 from onnx_jax.pb_wrapper import OnnxNode, build_ref_dict
 
 
 class JaxRep(BackendRep):
-
     def __init__(self, model=None):
         super(JaxRep, self).__init__()
 
@@ -20,7 +18,6 @@ class JaxRep(BackendRep):
 
 
 class JaxBackend(Backend):
-
     @classmethod
     def supports_device(cls, device):
         if device == 'CPU':
@@ -53,12 +50,16 @@ class JaxBackend(Backend):
             opset = model.opset_import
 
         if isinstance(inputs, dict):
-            tensor_dict = dict({k: v for k, v in inputs.items()},
-                               **{n.name: _asarray(n) for n in graph.initializer})
+            tensor_dict = dict(
+                {k: v for k, v in inputs.items()},
+                **{n.name: _asarray(n) for n in graph.initializer},
+            )
         else:
             graph_inputs = [x.name for x in graph.input]
-            tensor_dict = dict({k: v for k, v in zip(graph_inputs, inputs)},
-                               **{n.name: _asarray(n) for n in graph.initializer})
+            tensor_dict = dict(
+                {k: v for k, v in zip(graph_inputs, inputs)},
+                **{n.name: _asarray(n) for n in graph.initializer},
+            )
 
         ref_dict = {}
         handlers = cls._get_handlers(opset)
@@ -93,11 +94,17 @@ class JaxBackend(Backend):
     def _run_node_imp(cls, node, inputs, opset=None, handlers=None, **kwargs):
         handlers = handlers or cls._get_handlers(opset)
         if handlers:
-            handler = handlers[node.domain].get(node.op_type, None) if node.domain in handlers else None
+            handler = (
+                handlers[node.domain].get(node.op_type, None)
+                if node.domain in handlers
+                else None
+            )
             if handler:
                 return handler.handle(node, inputs=inputs, **kwargs)
 
-        raise BackendIsNotSupposedToImplementIt("{} is not implemented.".format(node.op_type))
+        raise BackendIsNotSupposedToImplementIt(
+            "{} is not implemented.".format(node.op_type)
+        )
 
     @classmethod
     def _get_handlers(cls, opset):
