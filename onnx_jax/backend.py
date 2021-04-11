@@ -1,4 +1,5 @@
 from typing import Sequence
+
 import jax.numpy as jnp
 from onnx import defs, numpy_helper
 from onnx.backend.base import Backend, BackendRep

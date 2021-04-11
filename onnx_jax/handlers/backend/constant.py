@@ -1,6 +1,5 @@
 import jax.numpy as jnp
-from onnx import mapping
-from onnx import numpy_helper
+from onnx import mapping, numpy_helper
 
 from onnx_jax.handlers.backend_handler import BackendHandler
 from onnx_jax.handlers.handler import onnx_op

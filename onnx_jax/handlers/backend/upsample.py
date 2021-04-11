@@ -1,5 +1,5 @@
 import jax.numpy as jnp
-from jax.image import resize, ResizeMethod
+from jax.image import ResizeMethod, resize
 
 from onnx_jax.handlers.backend_handler import BackendHandler
 from onnx_jax.handlers.handler import onnx_op

@@ -4,7 +4,6 @@ from onnx import TensorProto
 from onnx_jax.handlers.backend_handler import BackendHandler
 from onnx_jax.handlers.handler import onnx_op
 
-
 TENSOR_TYPE_TO_JNP_TYPE = {
     int(TensorProto.FLOAT): np.dtype('float32'),
     int(TensorProto.UINT8): np.dtype('uint8'),

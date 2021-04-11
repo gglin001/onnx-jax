@@ -1,8 +1,6 @@
-import inspect
-from functools import partial
-
 import jax.numpy as jnp
-from jax import jit, lax
+from jax import jit
+
 from onnx_jax.handlers.backend_handler import BackendHandler
 from onnx_jax.handlers.handler import onnx_op
 from onnx_jax.pb_wrapper import OnnxNode
@@ -11,7 +9,7 @@ from onnx_jax.pb_wrapper import OnnxNode
 @onnx_op("GlobalAveragePool")
 class GlobalAveragePool(BackendHandler):
     @classmethod
-    def _common(cls, node, inputs, **kwargs):
+    def _common(cls, node: OnnxNode, **kwargs):
         return global_average_pool
 
     @classmethod

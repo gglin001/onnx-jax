@@ -1,0 +1,2 @@
+cd ../
+isort -rc -y .
