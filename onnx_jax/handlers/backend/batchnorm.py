@@ -11,7 +11,7 @@ from onnx_jax.pb_wrapper import OnnxNode
 @onnx_op("BatchNormalization")
 class BatchNormalization(BackendHandler):
     @classmethod
-    def _common(cls, node, inputs, **kwargs):
+    def _common(cls, node: OnnxNode, **kwargs):
         cls._rewrite(node)
         cls._prepare(node)
 
