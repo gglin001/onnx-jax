@@ -1,16 +1,23 @@
+import inspect
+from functools import partial
+
 import jax.numpy as jnp
 import numpy as np
-from jax import lax
+from jax import jit, lax
 
 from onnx_jax.handlers.backend_handler import BackendHandler
 from onnx_jax.handlers.handler import onnx_op
+from onnx_jax.pb_wrapper import OnnxNode
 
 
 @onnx_op("AveragePool")
 class AveragePool(BackendHandler):
     @classmethod
     def _common(cls, node, inputs, **kwargs):
-        return onnx_avgpool(*inputs, **node.attrs)
+        cls._rewrite(node)
+        cls._prepare(node)
+
+        return onnx_avgpool
 
     @classmethod
     def version_1(cls, node, **kwargs):
@@ -28,6 +35,25 @@ class AveragePool(BackendHandler):
     def version_11(cls, node, **kwargs):
         return cls._common(node, **kwargs)
 
+    @classmethod
+    def _rewrite(cls, node: OnnxNode):
+        if 'auto_pad' not in node.attrs:
+            node.attrs['auto_pad'] = 'NOTSET'
+        if 'ceil_mode' not in node.attrs:
+            node.attrs['ceil_mode'] = 0
+        if 'count_include_pad' not in node.attrs:
+            node.attrs['count_include_pad'] = 0
+        if 'pads' not in node.attrs:
+            node.attrs['pads'] = None
+        if 'strides' not in node.attrs:
+            node.attrs['strides'] = None
+
+    @classmethod
+    def _prepare(cls, node: OnnxNode):
+        args = list(inspect.signature(onnx_avgpool).parameters.keys())
+        attrs = [node.attrs.get(k, None) for k in args[node.len_inputs :]]
+        node.attrs_list.extend(attrs)
+
 
 def pad_helper(input_rank, pads=None):
     pad_pairs = len(pads) // 2 if pads else 0
@@ -40,6 +66,7 @@ def pad_helper(input_rank, pads=None):
     return pad_width
 
 
+@partial(jit, static_argnums=(1, 2, 3, 4, 5, 6))
 def onnx_avgpool(
     x,
     kernel_shape,
@@ -49,7 +76,6 @@ def onnx_avgpool(
     ceil_mode=0,
     count_include_pad=0,
 ):
-
     if ceil_mode != 0:
         raise NotImplemented('ceil_mode != 0')
 
