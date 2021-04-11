@@ -30,7 +30,7 @@ TENSOR_TYPE_TO_JNP_TYPE = {
 @onnx_op("Cast")
 class Cast(BackendHandler):
     @classmethod
-    def _common(cls, node, inputs, **kwargs):
+    def _common(cls, node: OnnxNode, **kwargs):
         cls._rewrite(node)
         cls._prepare(node)
 
