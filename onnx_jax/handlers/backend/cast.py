@@ -1,8 +1,11 @@
+import inspect
+
 import numpy as np
 from onnx import TensorProto
 
 from onnx_jax.handlers.backend_handler import BackendHandler
 from onnx_jax.handlers.handler import onnx_op
+from onnx_jax.pb_wrapper import OnnxNode
 
 TENSOR_TYPE_TO_JNP_TYPE = {
     int(TensorProto.FLOAT): np.dtype('float32'),
@@ -28,7 +31,10 @@ TENSOR_TYPE_TO_JNP_TYPE = {
 class Cast(BackendHandler):
     @classmethod
     def _common(cls, node, inputs, **kwargs):
-        return [inputs[0].astype(TENSOR_TYPE_TO_JNP_TYPE[node.attrs['to']])]
+        cls._rewrite(node)
+        cls._prepare(node)
+
+        return onnx_cast
 
     @classmethod
     def version_1(cls, node, **kwargs):
@@ -45,3 +51,20 @@ class Cast(BackendHandler):
     @classmethod
     def version_13(cls, node, **kwargs):
         return cls._common(node, **kwargs)
+
+    @classmethod
+    def _rewrite(cls, node: OnnxNode):
+        to = node.attrs['to']
+        node.attrs['to'] = TENSOR_TYPE_TO_JNP_TYPE[to]
+
+    @classmethod
+    def _prepare(cls, node: OnnxNode):
+        args = list(inspect.signature(onnx_cast).parameters.keys())
+        attrs = [node.attrs.get(k, None) for k in args[node.len_inputs :]]
+        node.attrs_list.extend(attrs)
+
+
+# @jit
+def onnx_cast(x, to):
+    print(to)
+    return x.astype(to)
