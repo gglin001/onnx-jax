@@ -38,6 +38,7 @@ class JaxBackend(Backend):
         onnx_node = OnnxNode(node)
         jit_func = cls._jit(onnx_node, **kwargs)
         inputs = [jnp.asarray(x) for x in inputs]
+        # TODO support uncertain number inputs, like concat
         outputs = jit_func(*inputs, *onnx_node.attrs_list)
         return outputs if isinstance(outputs, Sequence) else [outputs]
 
