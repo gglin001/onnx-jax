@@ -10,12 +10,12 @@ def convert_onnx(attr_proto):
     elif attr_proto.HasField('g'):
         return attr_proto.g
     elif attr_proto.floats:
-        return list(attr_proto.floats)
+        return tuple(attr_proto.floats)
     elif attr_proto.ints:
-        return list(attr_proto.ints)
+        return tuple(attr_proto.ints)
     elif attr_proto.strings:
         str_list = list(attr_proto.strings)
-        str_list = list(map(lambda x: str(x, 'utf-8'), str_list))
+        str_list = tuple(map(lambda x: str(x, 'utf-8'), str_list))
         return str_list
     elif attr_proto.HasField('sparse_tensor'):
         return attr_proto.sparse_tensor
@@ -29,8 +29,11 @@ class OnnxNode(object):
         self.op_type = str(node.op_type)
         self.domain = str(node.domain)
         self.attrs = dict([(attr.name, convert_onnx(attr)) for attr in node.attribute])
+        self.attrs_list = []
         self.inputs = list(node.input)
+        self.len_inputs = len(node.input)
         self.outputs = list(node.output)
+        self.len_outputs = len(node.output)
         self.node_proto = node
 
 

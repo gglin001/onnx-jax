@@ -1,3 +1,4 @@
+from jax import jit
 from jax.nn import relu
 
 from onnx_jax.handlers.backend_handler import BackendHandler
@@ -8,7 +9,11 @@ from onnx_jax.handlers.handler import onnx_op
 class Relu(BackendHandler):
     @classmethod
     def _common(cls, node, inputs, **kwargs):
-        return [relu(inputs[0])]
+        @jit
+        def _relu(x):
+            return relu(x)
+
+        return _relu
 
     @classmethod
     def version_1(cls, node, **kwargs):

@@ -1,3 +1,5 @@
+from typing import Sequence
+import jax.numpy as jnp
 from onnx import defs, numpy_helper
 from onnx.backend.base import Backend, BackendRep
 from onnx.backend.test.runner import BackendIsNotSupposedToImplementIt
@@ -32,15 +34,16 @@ class JaxBackend(Backend):
 
     @classmethod
     def run_node(cls, node, inputs, device='CPU', **kwargs):
-        super(JaxBackend, cls).run_node(node, inputs)
-
-        outputs = cls._run_node_imp(OnnxNode(node), inputs, **kwargs)
-        return outputs
+        onnx_node = OnnxNode(node)
+        jit_func = cls._jit(onnx_node, **kwargs)
+        inputs = [jnp.asarray(x) for x in inputs]
+        outputs = jit_func(*inputs, *onnx_node.attrs_list)
+        return outputs if isinstance(outputs, Sequence) else [outputs]
 
     @classmethod
     def run_model(cls, model, inputs, device='CPU', **kwargs):
         def _asarray(proto):
-            return numpy_helper.to_array(proto).reshape(tuple(proto.dims))
+            return jnp.asarray(numpy_helper.to_array(proto).reshape(tuple(proto.dims)))
 
         tensor_ref_dict = build_ref_dict(model)
         graph = model.graph
@@ -61,37 +64,48 @@ class JaxBackend(Backend):
                 **{n.name: _asarray(n) for n in graph.initializer},
             )
 
-        ref_dict = {}
-        handlers = cls._get_handlers(opset)
+        jit_funcs = {}
+        onnx_nodes = {}
         for node in graph.node:
-            node_inputs = [tensor_dict[x] for x in node.input]
+            onnx_node = OnnxNode(node)
+            jit_func = cls._jit(onnx_node, **kwargs)
+            jit_funcs[node.name] = jit_func
+            onnx_nodes[node.name] = onnx_node
 
+        ref_dict = {}
+        for node in graph.node:
+            onnx_node = onnx_nodes[node.name]
             print(f"running: {node.op_type}, {node.name}")
-            outputs = cls._run_node_imp(OnnxNode(node), node_inputs, opset, handlers)
+
+            node_inputs = [tensor_dict[x] for x in node.input]
+            jit_func = jit_funcs[node.name]
+            outputs = jit_func(*node_inputs, *onnx_node.attrs_list)
+            outputs = outputs if isinstance(outputs, Sequence) else [outputs]
+
             for name, output in zip(node.output, outputs):
                 tensor_dict[name] = output
 
-            node_input_shapes = [tensor_dict[x].shape for x in node.input]
-            node_output_shapes = [tensor_dict[x].shape for x in node.output]
-            print(f"\t{node_input_shapes} -> {node_output_shapes}")
+                node_input_shapes = [tensor_dict[x].shape for x in node.input]
+                node_output_shapes = [tensor_dict[x].shape for x in node.output]
+                print(f"\t{node_input_shapes} -> {node_output_shapes}")
 
-            for input_ in node.input:
-                if input_ in ref_dict:
-                    ref_dict[input_] += 1
-                else:
-                    ref_dict[input_] = 1
-            remove_keys = []
-            for k, v in ref_dict.items():
-                if tensor_ref_dict[k] == v:
-                    remove_keys.append(k)
-            for rm_k in remove_keys:
-                del ref_dict[rm_k]
-                del tensor_dict[rm_k]
+                for input_ in node.input:
+                    if input_ in ref_dict:
+                        ref_dict[input_] += 1
+                    else:
+                        ref_dict[input_] = 1
+                remove_keys = []
+                for k, v in ref_dict.items():
+                    if tensor_ref_dict[k] == v:
+                        remove_keys.append(k)
+                for rm_k in remove_keys:
+                    del ref_dict[rm_k]
+                    del tensor_dict[rm_k]
 
         return [tensor_dict[n.name] for n in graph.output]
 
     @classmethod
-    def _run_node_imp(cls, node, inputs, opset=None, handlers=None, **kwargs):
+    def _jit(cls, node, opset=None, handlers=None, **kwargs):
         handlers = handlers or cls._get_handlers(opset)
         if handlers:
             handler = (
@@ -100,7 +114,7 @@ class JaxBackend(Backend):
                 else None
             )
             if handler:
-                return handler.handle(node, inputs=inputs, **kwargs)
+                return handler.handle(node, inputs=None, **kwargs)
 
         raise BackendIsNotSupposedToImplementIt(
             "{} is not implemented.".format(node.op_type)
