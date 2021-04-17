@@ -22,3 +22,5 @@ Loop
 LRN
 LSTM
 MatMulInteger
+MaxUnpool
+MaxRoiPool
