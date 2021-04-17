@@ -8,3 +8,9 @@ DequantizeLinear
 Dropout
 DynamicQuantizeLinear
 Einsum
+Expand
+Eyelike
+GRU
+Gather
+GatherElements
+GatherND
