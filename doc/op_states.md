@@ -14,3 +14,5 @@ GRU
 Gather
 GatherElements
 GatherND
+GlobalLpPool
+Hardmax

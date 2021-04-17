@@ -1,0 +1,28 @@
+import numpy as np
+import onnx
+
+from tests.tools import expect
+
+
+def hardswish(x):  # type: (np.ndarray) -> np.ndarray
+    alfa = float(1 / 6)
+    beta = 0.5
+    return x * np.maximum(0, np.minimum(1, alfa * x + beta))
+
+
+class HardSwish:
+    @staticmethod
+    def export():  # type: () -> None
+        node = onnx.helper.make_node(
+            'HardSwish',
+            inputs=['x'],
+            outputs=['y'],
+        )
+        x = np.random.randn(3, 4, 5).astype(np.float32)
+        y = hardswish(x)
+
+        expect(node, inputs=[x], outputs=[y], name='test_hardswish')
+
+
+if __name__ == '__main__':
+    HardSwish.export()
