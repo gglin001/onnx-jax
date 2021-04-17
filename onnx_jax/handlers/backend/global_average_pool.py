@@ -10,7 +10,7 @@ from onnx_jax.pb_wrapper import OnnxNode
 class GlobalAveragePool(BackendHandler):
     @classmethod
     def _common(cls, node: OnnxNode, **kwargs):
-        return global_average_pool
+        return onnx_global_average_pool
 
     @classmethod
     def version_1(cls, node, **kwargs):
@@ -18,7 +18,7 @@ class GlobalAveragePool(BackendHandler):
 
 
 @jit
-def global_average_pool(x):
+def onnx_global_average_pool(x):
     spatial_dim = jnp.ndim(x) - 2
     y = jnp.mean(x, axis=tuple(range(spatial_dim, spatial_dim + 2)))
     for _ in range(spatial_dim):
