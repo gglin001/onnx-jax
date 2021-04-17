@@ -1,2 +1,7 @@
 cd ../
-isort -rc -y .
+
+# isort v4
+# isort -rc -y .
+
+# isort v5
+isort .
