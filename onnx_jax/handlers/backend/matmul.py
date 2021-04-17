@@ -1,14 +1,20 @@
 import jax.numpy as jnp
+from jax import jit
 
 from onnx_jax.handlers.backend_handler import BackendHandler
 from onnx_jax.handlers.handler import onnx_op
+from onnx_jax.pb_wrapper import OnnxNode
 
 
 @onnx_op("MatMul")
 class MatMul(BackendHandler):
     @classmethod
-    def _common(cls, node, inputs, **kwargs):
-        return [jnp.matmul(inputs[0], inputs[1])]
+    def _common(cls, node: OnnxNode, **kwargs):
+        @jit
+        def _matmul(a, b):
+            return jnp.matmul(a, b)
+
+        return _matmul
 
     @classmethod
     def version_1(cls, node, **kwargs):

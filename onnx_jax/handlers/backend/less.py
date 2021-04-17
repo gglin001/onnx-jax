@@ -1,14 +1,20 @@
 import jax.numpy as jnp
+from jax import jit
 
 from onnx_jax.handlers.backend_handler import BackendHandler
 from onnx_jax.handlers.handler import onnx_op
+from onnx_jax.pb_wrapper import OnnxNode
 
 
 @onnx_op("Less")
 class Less(BackendHandler):
     @classmethod
-    def _common(cls, node, inputs, **kwargs):
-        return onnx_less(*inputs, **node.attrs)
+    def _common(cls, node: OnnxNode, **kwargs):
+        @jit
+        def _less(a, b):
+            return jnp.less(a, b)
+
+        return _less
 
     @classmethod
     def version_1(cls, node, **kwargs):
@@ -25,7 +31,3 @@ class Less(BackendHandler):
     @classmethod
     def version_13(cls, node, **kwargs):
         return cls._common(node, **kwargs)
-
-
-def onnx_less(a, b, **kwargs):
-    return [jnp.less(a, b)]

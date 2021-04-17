@@ -18,3 +18,7 @@ GlobalLpPool
 Hardmax
 If
 IsInf
+Loop
+LRN
+LSTM
+MatMulInteger
