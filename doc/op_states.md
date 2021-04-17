@@ -16,3 +16,5 @@ GatherElements
 GatherND
 GlobalLpPool
 Hardmax
+If
+IsInf
