@@ -35,3 +35,14 @@ QLinearConv
 QuantizeLinear
 Range
 ReduceSum
+Resize
+ReverseSequence
+RNN
+RoiAlign
+Scan
+Scatter
+ScatterElements
+ScatterND
+SequenceInsert
+Shrink
+Slice

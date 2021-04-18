@@ -40,6 +40,10 @@ class Reshape(BackendHandler):
         return cls._common(node, **kwargs)
 
     @classmethod
+    def version_14(cls, node, **kwargs):
+        return cls._common(node, **kwargs)
+
+    @classmethod
     def _prepare(cls, node: OnnxNode):
         args = list(inspect.signature(reshape).parameters.keys())
         attrs = [node.attrs.get(k, None) for k in args[node.len_inputs :]]
