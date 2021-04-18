@@ -66,5 +66,4 @@ class Cast(BackendHandler):
 
 # @jit
 def onnx_cast(x, to):
-    print(to)
     return x.astype(to)
