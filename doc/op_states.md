@@ -32,7 +32,6 @@ QLinearMatMul
 QLinearConv
 QuantizeLinear
 Range
-ReduceSum
 Resize
 ReverseSequence
 RNN
