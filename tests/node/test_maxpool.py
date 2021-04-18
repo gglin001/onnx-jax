@@ -1,8 +1,7 @@
 import numpy as np
 import onnx
-from onnx.backend.test.case.node.pool_op_common import (get_output_shape,
-                                                        get_pad_shape, pool)
 
+from tests.node.pool_op_common import get_output_shape, get_pad_shape, pool
 from tests.tools import expect
 
 
@@ -507,7 +506,6 @@ class MaxPool:
 if __name__ == '__main__':
     # for func in inspect.getmembers(MaxPool, predicate=inspect.isfunction):
     #     print(f"MaxPool.{func[0]}()")
-
     MaxPool.export_maxpool_1d_default()
     MaxPool.export_maxpool_2d_ceil()
     MaxPool.export_maxpool_2d_default()

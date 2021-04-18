@@ -3,9 +3,8 @@ import logging
 
 import numpy as np
 import onnx
-from onnx.backend.test.case.node.pool_op_common import (get_output_shape,
-                                                        get_pad_shape, pool)
 
+from tests.node.pool_op_common import get_output_shape, get_pad_shape, pool
 from tests.tools import expect
 
 
@@ -458,10 +457,18 @@ class AveragePool:
 
 
 if __name__ == '__main__':
-    for func in inspect.getmembers(AveragePool, predicate=inspect.isfunction):
-        try:
-            print(f"{func[0]}")
-            func[1]()
-        except Exception as e:
-            logging.exception((e))
-            pass
+    # for func in inspect.getmembers(AveragePool, predicate=inspect.isfunction):
+    #     print(f"AveragePool.{func[0]}()")
+    AveragePool.export_averagepool_1d_default()
+    # AveragePool.export_averagepool_2d_ceil() # skipe
+    AveragePool.export_averagepool_2d_default()
+    AveragePool.export_averagepool_2d_pads()
+    AveragePool.export_averagepool_2d_pads_count_include_pad()
+    AveragePool.export_averagepool_2d_precomputed_pads()
+    AveragePool.export_averagepool_2d_precomputed_pads_count_include_pad()
+    AveragePool.export_averagepool_2d_precomputed_same_upper()
+    AveragePool.export_averagepool_2d_precomputed_strides()
+    # AveragePool.export_averagepool_2d_same_lower() # skipe
+    AveragePool.export_averagepool_2d_same_upper()
+    AveragePool.export_averagepool_2d_strides()
+    AveragePool.export_averagepool_3d_default()
