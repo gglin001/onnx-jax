@@ -47,7 +47,6 @@ Slice
 SpaceToDepth
 Split
 SplitToSequence
-Squeeze
 StringNormalizer
 TfIdfVectorizer
 ThresholdedRelu
