@@ -43,7 +43,6 @@ ScatterElements
 ScatterND
 SequenceInsert
 Shrink
-Slice
 SpaceToDepth
 SplitToSequence
 StringNormalizer

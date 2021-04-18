@@ -1,16 +1,34 @@
+import inspect
+from functools import partial
+
+from jax import jit
+
 from onnx_jax.handlers.backend_handler import BackendHandler
 from onnx_jax.handlers.handler import onnx_op
+from onnx_jax.pb_wrapper import OnnxNode
 
 
 @onnx_op("Slice")
 class Slice(BackendHandler):
     @classmethod
-    def _common(cls, node, inputs, **kwargs):
-        return onnx_slice_v10(*inputs, **node.attrs)
+    def _common(cls, node: OnnxNode, **kwargs):
+        cls._rewrite(node)
+        cls._prepare(node)
+
+        def _slice(x, starts, ends, axes=None, steps=None):
+            if axes is not None:
+                axes = tuple(axes)
+            if steps is not None:
+                steps = tuple(steps)
+
+            return onnx_slice(x, tuple(starts), tuple(ends), axes, steps)
+
+        return _slice
 
     @classmethod
     def version_1(cls, node, **kwargs):
-        return cls._common(node, **kwargs)
+        # TODO
+        raise NotImplemented('Slice opset-v1')
 
     @classmethod
     def version_10(cls, node, **kwargs):
@@ -18,11 +36,21 @@ class Slice(BackendHandler):
 
     @classmethod
     def version_11(cls, node, **kwargs):
-        return cls.version_10(node, **kwargs)
+        return cls._common(node, **kwargs)
 
     @classmethod
     def version_13(cls, node, **kwargs):
-        return cls.version_10(node, **kwargs)
+        return cls._common(node, **kwargs)
+
+    @classmethod
+    def _rewrite(cls, node: OnnxNode):
+        pass
+
+    @classmethod
+    def _prepare(cls, node: OnnxNode):
+        args = list(inspect.signature(onnx_slice).parameters.keys())
+        attrs = [node.attrs.get(k, None) for k in args[node.len_inputs :]]
+        node.attrs_list.extend(attrs)
 
 
 def axe_helper(ndim, x):
@@ -37,9 +65,9 @@ def end_helper(end, shape):
     return shape + end if end < 0 else min(end, shape)
 
 
-def onnx_slice_v10(data, starts, ends, axes=None, steps=None, **kwargs):
-    ndim = data.ndim
-
+@partial(jit, static_argnums=(1, 2, 3, 4))
+def onnx_slice(x, starts, ends, axes=None, steps=None):
+    ndim = x.ndim
     starts_new, ends_new, axes_new, steps_new = [], [], [], []
     if axes is None and steps is None:
         steps_new = [None] * ndim
@@ -78,4 +106,4 @@ def onnx_slice_v10(data, starts, ends, axes=None, steps=None, **kwargs):
         slice(_st, _end, _step)
         for _st, _end, _step in zip(starts_new, ends_new, steps_new)
     ]
-    return [data.__getitem__(tuple(slices))]
+    return x[tuple(slices)]
