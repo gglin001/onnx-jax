@@ -29,3 +29,9 @@ Multinomial
 NegativeLogLikelihoodLoss
 NonMaxSuppression
 OneHot
+Pad
+QLinearMatMul
+QLinearConv
+QuantizeLinear
+Range
+ReduceSum

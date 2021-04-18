@@ -1,17 +1,20 @@
 import jax.numpy as jnp
+from jax import jit
 
 from onnx_jax.handlers.backend_handler import BackendHandler
 from onnx_jax.handlers.handler import onnx_op
+from onnx_jax.pb_wrapper import OnnxNode
 
 
 @onnx_op("PRelu")
 class PRelu(BackendHandler):
     @classmethod
-    def _common(cls, node, inputs, **kwargs):
-        return [
-            jnp.clip(inputs[0], 0, jnp.inf)
-            + jnp.clip(inputs[0], -jnp.inf, 0) * inputs[1]
-        ]
+    def _common(cls, node: OnnxNode, **kwargs):
+        @jit
+        def _prelu(x, slope):
+            return jnp.clip(x, 0, jnp.inf) + jnp.clip(x, -jnp.inf, 0) * slope
+
+        return _prelu
 
     @classmethod
     def version_1(cls, node, **kwargs):
