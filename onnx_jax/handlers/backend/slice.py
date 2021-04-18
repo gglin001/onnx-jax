@@ -1,11 +1,13 @@
 import inspect
 from functools import partial
-
+import jax.numpy as jnp
 from jax import jit
 
 from onnx_jax.handlers.backend_handler import BackendHandler
 from onnx_jax.handlers.handler import onnx_op
 from onnx_jax.pb_wrapper import OnnxNode
+
+int32_max = jnp.iinfo(jnp.int32).max
 
 
 @onnx_op("Slice")
@@ -20,7 +22,7 @@ class Slice(BackendHandler):
                 axes = tuple(axes)
             if steps is not None:
                 steps = tuple(steps)
-
+            ends = [x if x < int32_max else int32_max for x in ends]
             return onnx_slice(x, tuple(starts), tuple(ends), axes, steps)
 
         return _slice
