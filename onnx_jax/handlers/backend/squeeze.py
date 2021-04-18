@@ -1,5 +1,6 @@
 import inspect
 from functools import partial
+from typing import List
 
 import jax.numpy as jnp
 from jax import jit
@@ -50,5 +51,5 @@ class Squeeze(BackendHandler):
 
 
 @partial(jit, static_argnums=(1))
-def onnx_squeeze(x, axes=None):
+def onnx_squeeze(x, axes: List[int]):
     return jnp.squeeze(x, axes)
