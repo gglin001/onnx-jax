@@ -1,5 +1,4 @@
 {
-    "python.pythonPath": "/home/allen/.miniconda3/envs/jax/bin/python",
     "python.envFile": "${workspaceFolder}/.env",
     "terminal.integrated.env.linux": {
         "PYTHONPATH": "${workspaceFolder}/:${env:PYTHONPATH}"
