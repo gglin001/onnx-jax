@@ -1,14 +1,20 @@
 import jax.numpy as jnp
+from jax import jit
 
 from onnx_jax.handlers.backend_handler import BackendHandler
 from onnx_jax.handlers.handler import onnx_op
+from onnx_jax.pb_wrapper import OnnxNode
 
 
 @onnx_op("Mul")
 class Mul(BackendHandler):
     @classmethod
-    def _common(cls, node, inputs, **kwargs):
-        return onnx_mul(*inputs, **node.attrs)
+    def _common(cls, node: OnnxNode, **kwargs):
+        @jit
+        def _mul(a, b):
+            return jnp.multiply(a, b)
+
+        return _mul
 
     @classmethod
     def version_1(cls, node, **kwargs):
@@ -26,11 +32,6 @@ class Mul(BackendHandler):
     def version_13(cls, node, **kwargs):
         return cls._common(node, **kwargs)
 
-
-def onnx_mul(a, b, **kwargs):
-    if len(a.shape) != len(b.shape):
-        b_shape = [1] * len(a.shape)
-        b_shape[1] = -1
-        b = jnp.reshape(b, b_shape)
-
-    return [jnp.multiply(a, b)]
+    @classmethod
+    def version_14(cls, node, **kwargs):
+        return cls._common(node, **kwargs)

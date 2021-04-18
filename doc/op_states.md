@@ -24,3 +24,8 @@ LSTM
 MatMulInteger
 MaxUnpool
 MaxRoiPool
+Momentum
+Multinomial
+NegativeLogLikelihoodLoss
+NonMaxSuppression
+OneHot
