@@ -10,7 +10,6 @@ Einsum
 Expand
 Eyelike
 GRU
-Gather
 GatherElements
 GatherND
 GlobalLpPool
