@@ -46,3 +46,15 @@ ScatterND
 SequenceInsert
 Shrink
 Slice
+SpaceToDepth
+Split
+SplitToSequence
+Squeeze
+StringNormalizer
+TfIdfVectorizer
+ThresholdedRelu
+Tile
+TopK
+Trilu
+Unique
+Unsqueeze
