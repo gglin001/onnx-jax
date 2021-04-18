@@ -5,7 +5,6 @@ ConvTranspose
 CumSum
 DepthToSpace
 DequantizeLinear
-Dropout
 DynamicQuantizeLinear
 Einsum
 Expand
