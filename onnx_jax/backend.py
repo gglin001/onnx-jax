@@ -68,9 +68,12 @@ class JaxBackend(Backend):
 
         jit_funcs = {}
         onnx_nodes = {}
-        for node in graph.node:
+        for idx, node in enumerate(graph.node):
             onnx_node = OnnxNode(node)
             jit_func = cls._jit(onnx_node, **kwargs)
+            # in some early onnx versions, node has no name
+            if node.name == '':
+                node.name = f"node_{idx}"
             jit_funcs[node.name] = jit_func
             onnx_nodes[node.name] = onnx_node
 

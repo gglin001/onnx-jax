@@ -1,3 +1,4 @@
+import logging
 import inspect
 from functools import partial
 
@@ -52,7 +53,7 @@ class Dropout(BackendHandler):
             raise NotImplemented('Dropout training mode')
         ratio = node.attrs.get('ratio', 0.0)
         if ratio != 0.0:
-            raise NotImplemented('ratio != 0.')
+            logging.warning(f"Dropout, change ratio from {ratio:.4f} to 0.0")
         node.attrs['return_mask'] = True if node.len_outputs == 2 else False
         # ignore seed
 

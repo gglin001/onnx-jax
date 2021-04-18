@@ -16,8 +16,8 @@ class Pad(BackendHandler):
         cls._rewrite(node)
         cls._prepare(node)
 
-        def _pad(data, pads, constant_value, mode):
-            return onnx_pad(data, tuple(pads), float(constant_value), mode)
+        def _pad(x, pads, constant_value, mode):
+            return onnx_pad(x, tuple(pads), float(constant_value), mode)
 
         return _pad
 
@@ -41,8 +41,16 @@ class Pad(BackendHandler):
     def _rewrite(cls, node: OnnxNode):
         if 'mode' not in node.attrs:
             node.attrs['mode'] = 'constant'
-        if node.len_inputs == 2:
+        if 'constant_value' not in node.attrs:
             node.attrs['constant_value'] = 0.0
+
+        # opset-v1
+        if 'paddings' in node.attrs:
+            node.attrs['pads'] = node.attrs['paddings']
+
+        # opset-v1 & v2
+        if 'value' in node.attrs:
+            node.attrs['constant_value'] = node.attrs['value']
 
     @classmethod
     def _prepare(cls, node: OnnxNode):
@@ -52,8 +60,8 @@ class Pad(BackendHandler):
 
 
 @partial(jit, static_argnums=(1, 2, 3))
-def onnx_pad(data, pads, constant_value=0.0, mode='constant'):
-    input_rank = data.ndim
+def onnx_pad(x, pads, constant_value=0.0, mode='constant'):
+    input_rank = x.ndim
     if input_rank * 2 != jnp.size(pads):
         raise Exception('The number of elements in raw_pads should be 2 * data_rank')
 
@@ -63,5 +71,5 @@ def onnx_pad(data, pads, constant_value=0.0, mode='constant'):
         pad_width += (((pads[i], pads[i + input_rank])),)
 
     if mode == 'constant':
-        return jnp.pad(data, pad_width, mode, constant_values=constant_value)
-    return jnp.pad(data, pad_width, mode)
+        return jnp.pad(x, pad_width, mode, constant_values=constant_value)
+    return jnp.pad(x, pad_width, mode)
