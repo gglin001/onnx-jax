@@ -45,7 +45,6 @@ SequenceInsert
 Shrink
 Slice
 SpaceToDepth
-Split
 SplitToSequence
 StringNormalizer
 TfIdfVectorizer
