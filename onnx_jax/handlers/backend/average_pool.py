@@ -97,11 +97,8 @@ def onnx_avgpool(
 
     if count_include_pad == 0:
         one = jnp.ones_like(x, dtype=x.dtype)
-        window_sizes = lax.reduce_window(one, 0.0, lax.add, dims, strides, pads)
+        wsizes = lax.reduce_window(one, 0.0, lax.add, dims, strides, pads)
     else:
-        window_sizes = np.prod(kernel_shape)
+        wsizes = np.prod(kernel_shape)
 
-    return [
-        lax.reduce_window(x, 0.0, lax.add, dims, strides, pads, None, None)
-        / window_sizes
-    ]
+    return lax.reduce_window(x, 0.0, lax.add, dims, strides, pads, None, None) / wsizes

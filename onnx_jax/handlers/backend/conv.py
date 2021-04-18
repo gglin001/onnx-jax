@@ -11,7 +11,7 @@ from onnx_jax.pb_wrapper import OnnxNode
 @onnx_op("Conv")
 class Conv(BackendHandler):
     @classmethod
-    def _common(cls, node, **kwargs):
+    def _common(cls, node: OnnxNode, **kwargs):
         cls._rewrite(node)
         cls._prepare(node)
 
