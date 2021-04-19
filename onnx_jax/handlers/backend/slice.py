@@ -30,8 +30,7 @@ class Slice(BackendHandler):
 
     @classmethod
     def version_1(cls, node, **kwargs):
-        # TODO
-        raise NotImplemented('Slice opset-v1')
+        return cls._common(node, **kwargs)
 
     @classmethod
     def version_10(cls, node, **kwargs):
