@@ -1,9 +1,8 @@
-import logging
-
 from onnx import defs
 
 from onnx_jax.handlers.backend import *  # noqa
 from onnx_jax.handlers.backend_handler import BackendHandler
+from onnx_jax.logger import logger
 
 
 def get_all_backend_handlers(opset_dict):
@@ -30,14 +29,14 @@ def get_all_backend_handlers(opset_dict):
                     max_inclusive_version=version,
                 ).since_version
             except RuntimeError:
-                logging.debug(
+                logger.error(
                     "Fail to get since_version of {} in domain `{}` "
                     "with max_inclusive_version={}. Set to 1.".format(
                         handler.ONNX_OP, handler.DOMAIN, version
                     )
                 )
         else:
-            logging.debug(
+            logger.error(
                 "Unknown op {} in domain `{}`.".format(
                     handler.ONNX_OP, handler.DOMAIN or "ai.onnx"
                 )

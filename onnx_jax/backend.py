@@ -7,6 +7,7 @@ from onnx.backend.test.runner import BackendIsNotSupposedToImplementIt
 from onnx.helper import make_opsetid
 
 from onnx_jax.handler_helper import get_all_backend_handlers
+from onnx_jax.logger import logger
 from onnx_jax.pb_wrapper import OnnxNode, build_ref_dict
 
 
@@ -80,7 +81,7 @@ class JaxBackend(Backend):
         ref_dict = {}
         for node in graph.node:
             onnx_node = onnx_nodes[node.name]
-            print(f"running: {node.op_type}, {node.name}")
+            logger.info(f"running: {node.op_type}, {node.name}")
 
             node_inputs = [tensor_dict[x] for x in node.input]
             jit_func = jit_funcs[node.name]
@@ -92,7 +93,7 @@ class JaxBackend(Backend):
 
                 node_input_shapes = [tensor_dict[x].shape for x in node.input]
                 node_output_shapes = [tensor_dict[x].shape for x in node.output]
-                print(f"\t{node_input_shapes} -> {node_output_shapes}")
+                logger.info(f"\t{node_input_shapes} -> {node_output_shapes}")
 
                 for input_ in node.input:
                     if input_ in ref_dict:

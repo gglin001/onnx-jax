@@ -4,6 +4,7 @@ import numpy as np
 import onnx
 
 from onnx_jax.backend import run_model
+from onnx_jax.logger import logger
 
 
 def _cosin_sim(a, b):
@@ -20,7 +21,7 @@ graph = onnx_model.graph
 
 # input_shape is [1,3,224,244]
 input_shape = [x.dim_value for x in graph.input[0].type.tensor_type.shape.dim]
-print(f"input shape: {input_shape}")
+logger.info(f"input shape: {input_shape}")
 
 # https://commons.wikimedia.org/wiki/File:Giant_Panda_in_Beijing_Zoo_1.JPG
 # imagenet id of panda is 388
@@ -36,7 +37,7 @@ input_ = input_ / jnp.array([0.229, 0.224, 0.225]).reshape([1, 3, 1, 1])
 
 # run model
 outputs = run_model(onnx_model, [input_])
-print(f"onnx-jax result: {jnp.argmax(outputs[0])}")
+logger.info(f"onnx-jax result: {jnp.argmax(outputs[0])}")
 
 try:
     import onnxruntime as ort
@@ -44,10 +45,10 @@ try:
     sess = ort.InferenceSession(fp)
     sess.get_inputs()
     out = sess.run(None, {graph.input[0].name: np.asarray(input_)})
-    print(f"onnxruntime reult: {np.argmax(out[0])}")
+    logger.info(f"onnxruntime reult: {np.argmax(out[0])}")
 
     # compare with onnxruntime reult
     sim = _cosin_sim(jnp.asarray(out[0]), outputs[0])
-    print(f"Output tensor similarity with onnxruntime: {sim}")
+    logger.info(f"Output tensor similarity with onnxruntime: {sim}")
 except:
     pass

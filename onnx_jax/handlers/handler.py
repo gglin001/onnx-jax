@@ -1,8 +1,9 @@
 import inspect
-import logging
 
 from onnx import defs
 from onnx.backend.test.runner import BackendIsNotSupposedToImplementIt
+
+from onnx_jax.logger import logger
 
 
 class Handler(object):
@@ -15,11 +16,9 @@ class Handler(object):
     @classmethod
     def check_cls(cls):
         if not cls.ONNX_OP:
-            logging.warning(
-                "{} doesn't have ONNX_OP. "
-                "Please use Handler.onnx_op decorator to register ONNX_OP.".format(
-                    cls.__name__
-                )
+            logger.warning(
+                f"{cls.__name__} doesn't have ONNX_OP. "
+                "Please use Handler.onnx_op decorator to register ONNX_OP."
             )
 
     @classmethod

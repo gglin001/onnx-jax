@@ -1,4 +1,3 @@
-import logging
 import inspect
 from functools import partial
 
@@ -7,6 +6,7 @@ from jax import jit
 
 from onnx_jax.handlers.backend_handler import BackendHandler
 from onnx_jax.handlers.handler import onnx_op
+from onnx_jax.logger import logger
 from onnx_jax.pb_wrapper import OnnxNode
 
 
@@ -53,7 +53,7 @@ class Dropout(BackendHandler):
             raise NotImplemented('Dropout training mode')
         ratio = node.attrs.get('ratio', 0.0)
         if ratio != 0.0:
-            logging.warning(f"Dropout, change ratio from {ratio:.4f} to 0.0")
+            logger.warning(f"Dropout, change ratio from {ratio:.4f} to 0.0")
         node.attrs['return_mask'] = True if node.len_outputs == 2 else False
         # ignore seed
 
