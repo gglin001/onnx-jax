@@ -1,20 +1,22 @@
-import jax.numpy as jnp
-from onnx import defs, helper
-from onnx.helper import make_opsetid
+import numpy as np
+import onnx
 
-from onnx_jax.backend import run_node
-from tests.tools import cosin_sim, gen_random
+from tests.tools import expect
 
 
-def test_abs():
-    node_def = helper.make_node("Abs", ["X"], ["Y"])
-    x = gen_random(shape=[1000])
+class Abs:
+    @staticmethod
+    def export():  # type: () -> None
+        node = onnx.helper.make_node(
+            'Abs',
+            inputs=['x'],
+            outputs=['y'],
+        )
+        x = np.random.randn(3, 4, 5).astype(np.float32)
+        y = abs(x)
 
-    opset = make_opsetid(defs.ONNX_DOMAIN, 1)
-    output = run_node(node_def, [x], opset=[opset])
-    sim = cosin_sim(output[0], jnp.abs(x))
-    print(sim)
+        expect(node, inputs=[x], outputs=[y], name='test_abs')
 
 
 if __name__ == '__main__':
-    test_abs()
+    Abs.export()

@@ -1,5 +1,3 @@
-import inspect
-
 import numpy as np
 import onnx
 
@@ -97,7 +95,11 @@ class BitShift:
 
 
 if __name__ == '__main__':
-    if __name__ == '__main__':
-        for func in inspect.getmembers(BitShift, predicate=inspect.isfunction):
-            print(f"{func[0]}")
-            func[1]()
+    BitShift.export_left_unit16()
+    BitShift.export_left_unit32()
+    BitShift.export_left_unit64()
+    BitShift.export_left_unit8()
+    BitShift.export_right_unit16()
+    BitShift.export_right_unit32()
+    BitShift.export_right_unit64()
+    BitShift.export_right_unit8()
