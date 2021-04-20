@@ -10,7 +10,6 @@ Einsum
 Expand
 Eyelike
 GRU
-GatherElements
 GatherND
 GlobalLpPool
 Hardmax
