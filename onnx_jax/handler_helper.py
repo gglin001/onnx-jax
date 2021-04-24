@@ -28,19 +28,17 @@ def get_all_backend_handlers(opset_dict):
                     domain=handler.DOMAIN,
                     max_inclusive_version=version,
                 ).since_version
-            except RuntimeError:
-                logger.error(
-                    "Fail to get since_version of {} in domain `{}` "
-                    "with max_inclusive_version={}. Set to 1.".format(
-                        handler.ONNX_OP, handler.DOMAIN, version
-                    )
+            except:
+                logger.warning(
+                    f"Fail to get since_version of {handler.ONNX_OP} "
+                    f"in domain `{handler.DOMAIN}` "
+                    f"with max_inclusive_version={version}. Set to 1."
                 )
         else:
-            logger.error(
-                "Unknown op {} in domain `{}`.".format(
-                    handler.ONNX_OP, handler.DOMAIN or "ai.onnx"
-                )
+            logger.warning(
+                f"Unknown op {handler.ONNX_OP} in domain `{handler.DOMAIN}`."
             )
         handler.SINCE_VERSION = since_version
         handlers.setdefault(domain, {})[handler.ONNX_OP] = handler
+
     return handlers

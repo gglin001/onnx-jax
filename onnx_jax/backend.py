@@ -69,12 +69,13 @@ class JaxBackend(Backend):
 
         jit_funcs = {}
         onnx_nodes = {}
+        handlers = cls._get_handlers(opset)
         for idx, node in enumerate(graph.node):
             onnx_node = OnnxNode(node)
-            jit_func = cls._jit(onnx_node, **kwargs)
+            jit_func = cls._jit(onnx_node, handlers=handlers, **kwargs)
             # in some early onnx versions, node has no name
             if node.name == '':
-                node.name = f"node_{idx}"
+                node.name = f"{node.output[0]}"
             jit_funcs[node.name] = jit_func
             onnx_nodes[node.name] = onnx_node
 
@@ -122,9 +123,7 @@ class JaxBackend(Backend):
             if handler:
                 return handler.handle(node, inputs=None, **kwargs)
 
-        raise BackendIsNotSupposedToImplementIt(
-            "{} is not implemented.".format(node.op_type)
-        )
+        raise BackendIsNotSupposedToImplementIt(f"{node.op_type} is not implemented.")
 
     @classmethod
     def _get_handlers(cls, opset):
