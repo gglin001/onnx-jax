@@ -29,7 +29,6 @@ OneHot
 QLinearMatMul
 QLinearConv
 QuantizeLinear
-Range
 Resize
 ReverseSequence
 RNN
@@ -45,7 +44,6 @@ SplitToSequence
 StringNormalizer
 TfIdfVectorizer
 ThresholdedRelu
-Tile
 TopK
 Trilu
 Unique
