@@ -3,4 +3,8 @@
     "terminal.integrated.env.linux": {
         "PYTHONPATH": "${workspaceFolder}/:${env:PYTHONPATH}"
     },
+    "python.formatting.provider": "black",
+    "python.formatting.blackArgs": [
+        "-S"
+    ],
 }
