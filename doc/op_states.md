@@ -12,7 +12,6 @@ Eyelike
 GRU
 GatherND
 GlobalLpPool
-Hardmax
 If
 IsInf
 Loop
