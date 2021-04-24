@@ -12,7 +12,7 @@ from onnx_jax.pb_wrapper import OnnxNode
 @onnx_op("Reshape")
 class Reshape(BackendHandler):
     @classmethod
-    def _common(cls, node, **kwargs):
+    def _common(cls, node: OnnxNode, **kwargs):
         cls._prepare(node)
 
         def _reshape(x, _shape):
